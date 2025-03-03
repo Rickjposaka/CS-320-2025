@@ -1,5 +1,5 @@
 ﻿using Xunit;
-namespace MyCookBookApi.Tests;
+namespace MyCookBookApp.Tests;
 
 public class UnitTest1
 {
