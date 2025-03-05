@@ -1,4 +1,4 @@
-namespace MyCookBookApi.Models
+namespace MyCookBookApp.Models
 {
     public class RecipeSearchRequest
     {

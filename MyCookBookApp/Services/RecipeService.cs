@@ -4,43 +4,66 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using MyCookBookApp.Models;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 
 namespace MyCookBookApp.Services
 {
     public class RecipeService
     {
         private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
 
-        public RecipeService(HttpClient httpClient)
+        // Constructor with HttpClient and configuration for API base URL
+        public RecipeService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration["ApiSettings:BaseUrl"];
         }
 
-        // Existing method to retrieve recipes
+        // Retrieves all recipes from the API
         public async Task<List<Recipe>> GetRecipesAsync()
         {
-            var response = await _httpClient.GetAsync("http://localhost:5164/api/recipe");
+            var response = await _httpClient.GetAsync($"{_baseUrl}/recipe");
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<List<Recipe>>(json) ?? new List<Recipe>();
         }
 
-        // New method to search recipes
-        public async Task<List<Recipe>> SearchRecipesAsync(string query)
+        // Retrieves a recipe by its ID from the API
+        public async Task<Recipe> GetRecipeByIdAsync(string id)
         {
-            // Create request data for the search
-            var payload = new { Query = query };
-            var content = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var response = await _httpClient.GetAsync($"{_baseUrl}/recipe/{id}");
+            if (!response.IsSuccessStatusCode)
+                return null; // Return null if the recipe is not found
 
-            // Send POST request
-            var response = await _httpClient.PostAsync("http://localhost:5164/api/recipe/search", content);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Recipe>(json);
+        }
 
-            // Check the status code
+        // Searches for recipes based on a query request
+        public async Task<List<Recipe>> SearchRecipesAsync(RecipeSearchRequest searchRequest)
+        {
+            var content = new StringContent(JsonConvert.SerializeObject(searchRequest), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}/recipe/search", content);
             response.EnsureSuccessStatusCode();
 
-            // Deserialize the response and return
-            var responseString = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<Recipe>>(responseString) ?? new List<Recipe>();
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<List<Recipe>>(json) ?? new List<Recipe>();
+        }
+
+        // Adds a new recipe to the system
+        public async Task<bool> AddRecipeAsync(Recipe recipe)
+        {
+            var json = JsonConvert.SerializeObject(recipe, Formatting.Indented); // Pretty-print JSON for readability
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // Log the request body before sending
+            Console.WriteLine("Request Body:");
+            Console.WriteLine(json);
+
+            var response = await _httpClient.PostAsync($"{_baseUrl}/recipe", content);
+            return response.IsSuccessStatusCode;
         }
     }
 }

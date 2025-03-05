@@ -1,23 +1,21 @@
-using System.Text.Json.Serialization; // For JSON serialization
-using System.Collections.Generic; // For using List<T> collections
+using System.Text.Json.Serialization;
+using System.Collections.Generic;
 
 namespace MyCookBookApi.Models
 {
     public class Recipe
     {
-        public string RecipeId { get; set; } // Auto-generated unique ID
-        public string Name { get; set; } // Recipe name
-        public string TagLine { get; set; } // Short tagline for the recipe
-        public string Summary { get; set; } // Brief description of the recipe
-        public List<string> Instructions { get; set; } = new List<string>(); // Step-by-step instructions
-        public List<string> Ingredients { get; set; } = new List<string>(); // List of ingredients
+        public string RecipeId { get; set; } = Guid.NewGuid().ToString(); // Ensure non-null value
+        public string Name { get; set; } = string.Empty; // Default to empty string
+        public string TagLine { get; set; } = string.Empty;
+        public string Summary { get; set; } = string.Empty;
+        public List<string> Instructions { get; set; } = new List<string>();
+        public List<string> Ingredients { get; set; } = new List<string>();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<CategoryType>? Categories { get; set; } = new List<CategoryType>(); // Optional categories
+        public List<CategoryType>? Categories { get; set; } = new List<CategoryType>();
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public List<RecipeMedia>? Media { get; set; } = new List<RecipeMedia>(); // Optional media (images/videos)
-
-        public Recipe() {} // Default constructor
+        public List<RecipeMedia>? Media { get; set; } = new List<RecipeMedia>();
     }
 }

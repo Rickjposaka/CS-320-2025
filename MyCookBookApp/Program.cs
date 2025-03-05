@@ -1,10 +1,8 @@
-//using MyCookBookApp.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpClient<MyCookBookApp.Services.RecipeService>();
-//builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -12,17 +10,15 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseHsts();  // HTTPS Strict-Transport-Security (HSTS) is still enabled in production.
 }
 
-// app.UseHttpsRedirection();
+// app.UseHttpsRedirection();  // 🔹 This line is now commented out to avoid HTTPS errors in local development.
 
 app.UseRouting();
-//app.MapControllers();
 app.UseAuthorization();
 
 app.MapStaticAssets();
-
 
 app.MapControllerRoute(
     name: "default",

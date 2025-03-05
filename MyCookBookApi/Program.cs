@@ -6,38 +6,37 @@ using System.Text.Json.Serialization;
 using MyCookBookApi.Models;
 using MyCookBookApi.Services;
 using MyCookBookApi.Repositories;
+using Microsoft.OpenApi.Models; // ✅ Add this for Swagger
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register services and repositories
-builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>(); // In-memory recipe storage
-builder.Services.AddScoped<IRecipeService, RecipeService>(); // Service to manage recipes
+// Register Services and Repositories
+builder.Services.AddSingleton<IRecipeRepository, MockRecipeRepository>();
+builder.Services.AddScoped<IRecipeService, RecipeService>();
 
-// Add controllers and configure JSON serialization for enums
-builder.Services.AddControllers().AddJsonOptions(options =>
+// Add Swagger Support
+builder.Services.AddSwaggerGen(c =>
 {
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); // Convert enums to string in JSON responses
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MyCookBook API", Version = "v1" });
 });
 
-// Enable API documentation with Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// Add controllers and ensure enums are properly serialized as strings
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(); // Enable Swagger UI in development mode
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();  // ✅ Enable Swagger
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyCookBook API v1"));
 }
 
-// app.UseHttpsRedirection(); // Optional: Enable if HTTPS redirection is required
-
-app.UseRouting(); // Enable routing
-app.UseAuthorization(); // Enable authorization
-
-// Configure controller routes
+app.UseRouting();
+app.UseAuthorization();
 app.MapControllers();
-
 app.Run();

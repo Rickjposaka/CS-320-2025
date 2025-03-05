@@ -36,17 +36,20 @@ namespace MyCookBookApi.Controllers
             return Ok(recipe);
         }
 
-        // Search for recipes based on the query
+        // Search for recipes based on the keyword
         [HttpPost("search")]
         public ActionResult<IEnumerable<Recipe>> SearchRecipes([FromBody] RecipeSearchRequest searchRequest)
         {
-            if (searchRequest == null || string.IsNullOrWhiteSpace(searchRequest.Query))
+            if (searchRequest == null || string.IsNullOrWhiteSpace(searchRequest.Keyword)) // 🔹 `Query` → `Keyword`
             {
                 return BadRequest("Invalid search request.");
             }
 
-            // Ensure Categories is never null
-            searchRequest.Categories ??= new List<CategoryType>();
+            // Ensure Categories is not null
+            if (searchRequest.Categories == null)
+            {
+                searchRequest.Categories = new List<CategoryType>();
+            }
 
             var recipes = _recipeService.SearchRecipes(searchRequest);
             return Ok(recipes);

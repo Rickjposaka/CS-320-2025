@@ -1,16 +1,30 @@
 @model List<MyCookBookApp.Models.Recipe>
 
-<div class="container mt-5">
-    <h1 class="display-4 text-center mb-4">Recipes</h1>
+@{
+    ViewData["Title"] = "Recipes";
+}
 
-    <!-- Search Form -->
-    <form asp-action="Search" method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="query" class="form-control" placeholder="Search recipes..." required />
-            <button type="submit" class="btn btn-primary">Search</button>
+<div class="container mt-4">
+    <!-- Header with Add Recipe Button -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Recipes</h2>
+        <button id="addRecipeBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+            Add Recipe
+        </button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="row mb-3">
+        <div class="col-md-10 position-relative">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search recipes..." oninput="toggleClearButton()" onkeydown="handleEnter(event)">
+            <span id="clearSearch" class="position-absolute text-muted" style="top: 50%; right: 40px; transform: translateY(-50%); cursor: pointer; display: none; font-size: 18px;" onclick="clearSearch()">✕</span>
         </div>
-    </form>
+        <div class="col-md-2">
+            <button id="searchButton" class="btn btn-success w-100" onclick="searchRecipes()">Search</button>
+        </div>
+    </div>
 
+    <!-- Recipes Display Section -->
     <div class="row">
         @if (Model != null && Model.Any())
         {
@@ -21,7 +35,7 @@
                         <div class="card-body">
                             <h5 class="card-title">@recipe.Name</h5>
                             <p class="card-text"><strong>Ingredients:</strong> @string.Join(", ", recipe.Ingredients)</p>
-                            <p class="card-text"><strong>Steps:</strong> @recipe.Steps</p>
+                            <p class="card-text"><strong>Instructions:</strong> @string.Join("<br>", recipe.Instructions)</p>
                         </div>
                     </div>
                 </div>
@@ -34,4 +48,17 @@
             </div>
         }
     </div>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination justify-content-center mt-3" id="pagination">
+            <!-- Pagination Buttons Rendered Here -->
+        </ul>
+    </nav>
 </div>
+
+<!-- Include Add Recipe Modal -->
+@Html.Partial("_AddRecipeModal")
+
+<!-- Include JavaScript -->
+<script src="/js/recipes.js" asp-append-version="true"></script>
